@@ -1,12 +1,15 @@
 package render
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 	"text/template"
 )
 
+// below code is deprecated
 func RenderTemplateOld(w http.ResponseWriter, tmpl string) {
 	parsedTemplate, _ := template.ParseFiles("./templates/"+tmpl, "./templates/base.layout.tmpl")
 	err := parsedTemplate.Execute(w, nil)
@@ -18,7 +21,7 @@ func RenderTemplateOld(w http.ResponseWriter, tmpl string) {
 
 var tc = make(map[string]*template.Template)
 
-func RenderTemplate(w http.ResponseWriter, t string) {
+func RenderTemplateV1(w http.ResponseWriter, t string) {
 	var tmpl *template.Template
 	var err error
 
@@ -54,4 +57,75 @@ func createTemplate(t string) error {
 	}
 	tc[t] = tmpl
 	return nil
+}
+
+func RenderTemplateDynamicCache(w http.ResponseWriter, tmpl string) {
+	// Create a template cache
+	tc, err := createTemplateDynamicCache()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// get a requested template cache
+	t, ok := tc[tmpl]
+	if !ok {
+		log.Fatal(err)
+	}
+
+	buf := new(bytes.Buffer)
+
+	_ = t.Execute(buf, nil)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// render the template
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func createTemplateDynamicCache() (map[string]*template.Template, error) {
+	myCache := map[string]*template.Template{}
+
+	// get all the files names *.page.tmpl from ./templates
+	pages, err := filepath.Glob("./templates/*.page.tmpl")
+
+	if err != nil {
+		log.Println("Something went wrong! 98")
+		log.Println(err, pages)
+		return myCache, err
+	}
+
+	for _, page := range pages {
+		name := filepath.Base(page)
+
+		ts, err := template.New(name).ParseFiles(page)
+
+		if err != nil {
+			log.Println("Something went wrong!108")
+			return myCache, err
+		}
+
+		matches, err := filepath.Glob("./templates/*.layout.tmpl")
+
+		if err != nil {
+			log.Println("Something went wrong!115")
+			return myCache, err
+		}
+
+		if len(matches) > 0 {
+			ts, err = ts.ParseGlob("./templates/*.layout.tmpl")
+			if err != nil {
+				log.Println("Something went wrong!122")
+				return myCache, err
+			}
+		}
+
+		myCache[name] = ts
+	}
+	return myCache, nil
 }
