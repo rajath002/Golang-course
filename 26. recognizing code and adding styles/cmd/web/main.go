@@ -2,14 +2,28 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/config"
 	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/handlers"
+	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/render"
 )
 
 const portNumber = ":8080"
 
 func main() {
+	var app config.AppConfig
+
+	tc, err := render.CreateTemplateDynamicCache()
+
+	if err != nil {
+		log.Fatal("Cannot create template cache")
+	}
+
+	app.TemplateCache = tc
+
+	render.NewTemplates(&app)
 
 	http.HandleFunc("/", handlers.Home)
 

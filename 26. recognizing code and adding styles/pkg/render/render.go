@@ -7,8 +7,11 @@ import (
 	"net/http"
 	"path/filepath"
 	"text/template"
+
+	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/config"
 )
 
+// -------------  Version #1 -----------
 // below code is deprecated
 func RenderTemplateOld(w http.ResponseWriter, tmpl string) {
 	parsedTemplate, _ := template.ParseFiles("./templates/"+tmpl, "./templates/base.layout.tmpl")
@@ -18,6 +21,8 @@ func RenderTemplateOld(w http.ResponseWriter, tmpl string) {
 		return
 	}
 }
+
+// -------------  Version #2 -----------
 
 var tc = make(map[string]*template.Template)
 
@@ -31,7 +36,7 @@ func RenderTemplateV1(w http.ResponseWriter, t string) {
 	if !inMap {
 		// need to create the template
 		log.Println("Creating a template and adding to template")
-		err = createTemplate(t)
+		err = CreateTemplate(t)
 		if err != nil {
 			log.Println(err)
 		}
@@ -46,7 +51,7 @@ func RenderTemplateV1(w http.ResponseWriter, t string) {
 
 }
 
-func createTemplate(t string) error {
+func CreateTemplate(t string) error {
 	templates := []string{
 		fmt.Sprintf("./templates/%s", t),
 		"./templates/base.layout.tmpl",
@@ -59,36 +64,43 @@ func createTemplate(t string) error {
 	return nil
 }
 
+// ------------- New Optimized Version #3 -----------
+
+var functions = template.FuncMap{}
+
+var app *config.AppConfig
+
+func NewTemplates(a *config.AppConfig) {
+	app = a
+}
+
 func RenderTemplateDynamicCache(w http.ResponseWriter, tmpl string) {
 	// Create a template cache
-	tc, err := createTemplateDynamicCache()
+	// tc, err := CreateTemplateDynamicCache()
+	tc := app.TemplateCache
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	// get a requested template cache
 	t, ok := tc[tmpl]
 	if !ok {
-		log.Fatal(err)
+		log.Fatal("Could not get the template from the template cache")
 	}
 
 	buf := new(bytes.Buffer)
 
 	_ = t.Execute(buf, nil)
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	// render the template
-	_, err = buf.WriteTo(w)
+	_, err := buf.WriteTo(w)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func createTemplateDynamicCache() (map[string]*template.Template, error) {
+func CreateTemplateDynamicCache() (map[string]*template.Template, error) {
 	myCache := map[string]*template.Template{}
 
 	// get all the files names *.page.tmpl from ./templates
