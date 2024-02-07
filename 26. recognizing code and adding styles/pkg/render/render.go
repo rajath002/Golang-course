@@ -77,7 +77,12 @@ func NewTemplates(a *config.AppConfig) {
 func RenderTemplateDynamicCache(w http.ResponseWriter, tmpl string) {
 	// Create a template cache
 	// tc, err := CreateTemplateDynamicCache()
-	tc := app.TemplateCache
+	var tc map[string]*template.Template
+	if app.UseCache {
+		tc = app.TemplateCache
+	} else {
+		tc, _ = CreateTemplateDynamicCache()
+	}
 
 	// if err != nil {
 	// 	log.Fatal(err)

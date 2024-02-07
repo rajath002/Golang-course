@@ -22,12 +22,17 @@ func main() {
 	}
 
 	app.TemplateCache = tc
+	app.UseCache = true
+
+	repo := handlers.NewRepo(&app)
+
+	handlers.NewHandlers(repo)
 
 	render.NewTemplates(&app)
 
-	http.HandleFunc("/", handlers.Home)
+	http.HandleFunc("/", handlers.Repo.Home)
 
-	http.HandleFunc("/about", handlers.About)
+	http.HandleFunc("/about", handlers.Repo.About)
 
 	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 
