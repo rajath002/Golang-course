@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/config"
+	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/models"
 	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/render"
 )
 
@@ -26,9 +28,16 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplateDynamicCache(w, "home.page.tmpl")
+	log.Println("HOME")
+	render.RenderTemplateDynamicCache(w, "home.page.tmpl", &models.TemplateData{})
 }
 
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplateDynamicCache(w, "about.page.tmpl")
+	// perform some logic
+	log.Println("ABOUT")
+	stringMap := make(map[string]string)
+	stringMap["val"] = "Hello Again."
+	render.RenderTemplateDynamicCache(w, "about.page.tmpl", &models.TemplateData{
+		StringMap: stringMap,
+	})
 }

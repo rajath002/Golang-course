@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/config"
+	"github.com/rajath002/RecognizingCodeAndAddingStyles/pkg/models"
 )
 
 // -------------  Version #1 -----------
@@ -74,7 +75,12 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-func RenderTemplateDynamicCache(w http.ResponseWriter, tmpl string) {
+func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+
+	return td
+}
+
+func RenderTemplateDynamicCache(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	// Create a template cache
 	// tc, err := CreateTemplateDynamicCache()
 	var tc map[string]*template.Template
@@ -96,7 +102,8 @@ func RenderTemplateDynamicCache(w http.ResponseWriter, tmpl string) {
 
 	buf := new(bytes.Buffer)
 
-	_ = t.Execute(buf, nil)
+	td = AddDefaultData(td)
+	_ = t.Execute(buf, td)
 
 	// render the template
 	_, err := buf.WriteTo(w)
