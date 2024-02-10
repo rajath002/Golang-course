@@ -29,13 +29,20 @@ func NewHandlers(r *Repository) {
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	log.Println("HOME")
+	remoteIP := r.RemoteAddr
+	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)
+
 	render.RenderTemplateDynamicCache(w, "home.page.tmpl", &models.TemplateData{})
 }
 
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 	// perform some logic
 	log.Println("ABOUT")
+
+	remoteIP := m.App.Session.GetString(r.Context(), "remote_ip")
+
 	stringMap := make(map[string]string)
+	stringMap["remote_ip"] = remoteIP
 	stringMap["val"] = "<b>Hello Again.</b>"
 	render.RenderTemplateDynamicCache(w, "about.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,

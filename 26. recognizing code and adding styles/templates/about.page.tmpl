@@ -8,6 +8,14 @@
                 <p>This is a paragraph of text</p>
                 <p>This is a paragraph of text</p>
                 <p>This came from the template : {{index .StringMap "val"}} : the value</p>
+
+                <p>
+                    {{if ne (index .StringMap "remote_ip") ""}}
+                        Your remote IP Address is {{index .StringMap "remote_ip"}}
+                    {{else}}
+                        I don't know Your IP Address, go to <a href="/">Home</a> so I can set the IP Address
+                    {{end}}
+                </p>
                 <p>Thank you</p>
             </div>
         </div>
