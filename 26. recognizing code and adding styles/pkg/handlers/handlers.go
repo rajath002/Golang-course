@@ -36,7 +36,7 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 	// perform some logic
 	log.Println("ABOUT")
 	stringMap := make(map[string]string)
-	stringMap["val"] = "Hello Again."
+	stringMap["val"] = "<b>Hello Again.</b>"
 	render.RenderTemplateDynamicCache(w, "about.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
 	})
